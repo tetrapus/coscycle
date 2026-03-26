@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildGraphFromGeoJSON, haversineDistance } from './graph';
-import { aStarSearch, findComparativeRoutes } from './astar';
+import { findComparativeRoutes } from './astar';
 
 describe('Routing Utilities', () => {
   const dummyGeoJSON = {
@@ -35,9 +35,9 @@ describe('Routing Utilities', () => {
 
   it('builds a graph correctly from GeoJSON', () => {
     const graph = buildGraphFromGeoJSON(dummyGeoJSON);
-    
+
     expect(graph.nodes.size).toBe(4);
-    
+
     const startNodeEdges = graph.edges.get('151.000000,-33.000000');
     expect(startNodeEdges).toBeDefined();
     expect(startNodeEdges?.length).toBe(2);
@@ -45,7 +45,7 @@ describe('Routing Utilities', () => {
 
   it('finds path using A* search', () => {
     const graph = buildGraphFromGeoJSON(dummyGeoJSON);
-    
+
     // Pick start & end points that aren't EXACTLY on the nodes to test findClosestNode
     const start: [number, number] = [151.0001, -33.0001];
     const end: [number, number] = [151.0999, -33.0999];
