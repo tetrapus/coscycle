@@ -281,7 +281,7 @@ const MapRenderer: React.FC = () => {
   }, [userLocation, gpsEnabled, startPoint, lastRoutedLocation, routes]);
 
   useEffect(() => {
-    fetch('/sydney_bicycle_network.json')
+    fetch(`${import.meta.env.BASE_URL}sydney_bicycle_network.json`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to load map data. The filtered JSON file might be missing.');
         return res.json();
