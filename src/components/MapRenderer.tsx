@@ -112,17 +112,17 @@ const MapLegend: React.FC = () => {
     { label: 'Cycling Excluded', color: '#DC143C' },
   ];
   return (
-    <div style={{
-      position: 'absolute', bottom: 30, right: 20, zIndex: 1000,
-      background: 'rgba(25, 25, 25, 0.85)', padding: expanded ? '15px 20px' : '10px',
+    <div className="map-legend" style={{
+      background: 'rgba(25, 25, 25, 0.85)', padding: expanded ? '15px 20px' : '8px 12px',
       borderRadius: '12px', color: '#fff', border: '1px solid #444',
       boxShadow: '0 4px 16px rgba(0,0,0,0.6)', cursor: expanded ? 'default' : 'pointer',
-      backdropFilter: 'blur(10px)', fontFamily: 'Inter, system-ui, sans-serif'
+      backdropFilter: 'blur(10px)', fontFamily: 'Inter, system-ui, sans-serif',
+      position: 'absolute', zIndex: 1000
     }} onClick={() => !expanded && setExpanded(true)}>
       {!expanded ? (
-        <div style={{ fontSize: '1.2rem', padding: '0 5px', color: '#ddd' }} title="Legend">📍</div>
+        <div style={{ fontSize: '1rem', fontWeight: 700, color: '#aaa', lineHeight: 1 }} title="Legend">?</div>
       ) : (
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', paddingTop: '4px' }}>
           <button
             onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
             style={{ position: 'absolute', top: -5, right: -10, background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '1.1rem' }}>
@@ -346,18 +346,31 @@ const MapRenderer: React.FC = () => {
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%', overflow: 'hidden' }}>
-      {/* UI Overlay */}
+      {/* Compass - anchored above nav panel, bottom-right */}
       <div style={{
-        position: 'absolute', top: 20, right: 20, zIndex: 1000,
+        position: 'absolute', bottom: 'calc(20px + 60px + 20px)', right: 20, zIndex: 1000,
+        width: '40px', height: '40px', borderRadius: '50%',
+        background: 'rgba(25,25,25,0.85)', border: '1px solid #444',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '1.3rem', userSelect: 'none'
+      }} title="North">
+        🧭
+      </div>
+
+      {/* UI Overlay - bottom right, full-width on mobile */}
+      <div style={{
+        position: 'absolute', bottom: 20, right: 20, zIndex: 1000,
         background: 'rgba(25, 25, 25, 0.85)', padding: routePanelExpanded ? '15px 20px' : '10px 15px',
         borderRadius: '12px', color: '#fff', border: '1px solid #444',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.6)', maxWidth: '300px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
+        width: 'min(300px, calc(100vw - 40px))',
         backdropFilter: 'blur(10px)',
         fontFamily: 'Inter, system-ui, sans-serif'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setRoutePanelExpanded(!routePanelExpanded)}>
-          <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#bbb', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {routePanelExpanded ? '▼' : '▶'} {routes ? 'Navigation Dashboard' : 'Route Planner'}
+          <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#bbb', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {routePanelExpanded ? '▼' : '▶'} Route Planner
           </div>
           <div>
             <button
@@ -370,7 +383,7 @@ const MapRenderer: React.FC = () => {
         </div>
 
         {overflowOpen && (
-          <div style={{ marginTop: '15px', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+          <div style={{ marginTop: '12px', padding: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px' }}>
             <label style={{ fontSize: '0.85rem', color: '#e0e0e0', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
               <input
                 type="checkbox"
@@ -397,29 +410,32 @@ const MapRenderer: React.FC = () => {
         )}
 
         {routePanelExpanded && (
-          <div style={{ marginTop: '15px' }}>
+          <div style={{ marginTop: '12px' }}>
             {!startPoint && !gpsEnabled && <p style={{ margin: 0, fontSize: '0.9rem', color: '#999' }}>Click on the map to drop a <b>Start</b> pin.</p>}
             {startPoint && !endPoint && <p style={{ margin: 0, fontSize: '0.9rem', color: '#999' }}>Click the map to place an <b>End</b> pin.</p>}
 
             {routes && routes.length > 0 && (
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {routes[0] && (
-                  <p style={{ margin: '8px 0', fontSize: '0.95rem', color: '#fff', fontWeight: 600 }}>
-                    <span style={{ color: '#fff', marginRight: '5px' }}>▬</span> {routes[0].label || 'Safest Route'}: {(routes[0].distance / 1000).toFixed(2)} km <br />
-                    <span style={{ opacity: 0.8, fontSize: '0.85em' }}>Cost: {(routes[0].cost / 1000).toFixed(2)} | Time: {Math.round(routes[0].timeSeconds / 60)} min</span>
-                  </p>
+                  <div style={{ borderLeft: '3px solid rgba(255,255,255,0.3)', paddingLeft: '10px' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '3px' }}>Safest</div>
+                    <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600 }}>{routes[0].label || 'Safest Route'}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#ccc', marginTop: '2px' }}>{(routes[0].distance / 1000).toFixed(2)} km · {Math.round(routes[0].timeSeconds * 1.2 / 60)} min</div>
+                  </div>
                 )}
                 {routes[1] && (
-                  <p style={{ margin: '8px 0', fontSize: '0.95rem', color: '#ddd', fontWeight: 500 }}>
-                    <span style={{ color: '#fff', marginRight: '5px', letterSpacing: '2px' }}>---</span> {routes[1].label || 'Shortest Path'}: {(routes[1].distance / 1000).toFixed(2)} km <br />
-                    <span style={{ opacity: 0.8, fontSize: '0.85em' }}>Time: {Math.round(routes[1].timeSeconds / 60)} min</span>
-                  </p>
+                  <div style={{ borderLeft: '3px dotted rgba(255,255,255,0.3)', paddingLeft: '10px' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '3px' }}>Shortest</div>
+                    <div style={{ fontSize: '0.9rem', color: '#ddd', fontWeight: 500 }}>{routes[1].label || 'Shortest Path'}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#bbb', marginTop: '2px' }}>{(routes[1].distance / 1000).toFixed(2)} km · {Math.round(routes[1].timeSeconds * 1.2 / 60)} min</div>
+                  </div>
                 )}
                 {routes[2] && (
-                  <p style={{ margin: '8px 0', fontSize: '0.95rem', color: '#ccc', fontWeight: 500 }}>
-                    <span style={{ color: '#fff', marginRight: '5px' }}>═</span> {routes[2].label || 'Quickest Route'}: {(routes[2].distance / 1000).toFixed(2)} km <br />
-                    <span style={{ opacity: 0.8, fontSize: '0.85em' }}>Time: {Math.round(routes[2].timeSeconds / 60)} min</span>
-                  </p>
+                  <div style={{ borderLeft: '5px double rgba(255,255,255,0.4)', paddingLeft: '10px' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '3px' }}>Fastest</div>
+                    <div style={{ fontSize: '0.9rem', color: '#ccc', fontWeight: 500 }}>{routes[2].label || 'Quickest Route'}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#aaa', marginTop: '2px' }}>{(routes[2].distance / 1000).toFixed(2)} km · {Math.round(routes[2].timeSeconds * 1.2 / 60)} min</div>
+                  </div>
                 )}
               </div>
             )}
@@ -427,6 +443,7 @@ const MapRenderer: React.FC = () => {
         )}
       </div>
 
+      {/* Legend moved to bottom-left */}
       <MapLegend />
 
       {error && (
@@ -446,17 +463,6 @@ const MapRenderer: React.FC = () => {
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
-
-        {/* 1. Fastest Route (Route 2) - Outer Casing drawn BELOW base map */}
-        {routes && routes[2] && getSegments(routes[2]).map((seg, i) => (
-          <Polyline
-            key={`r2-outer-${i}`}
-            positions={seg.coords.map(c => [c[1], c[0]])}
-            color={getPathStyle(seg.facility).color}
-            weight={getPathStyle(seg.facility).weight + 5}
-            opacity={1.0} lineCap="round" lineJoin="round"
-          />
-        ))}
 
         {/* 1. Fastest Route (Route 2) - Outer Casing drawn BELOW base map */}
         {routes && routes[2] && getSegments(routes[2]).map((seg, i) => (
@@ -548,11 +554,13 @@ const MapRenderer: React.FC = () => {
           </Marker>
         )}
 
+        {/* GPS dot in markerPane (z-index 600) so it always renders above overlayPane route lines (z-index 400) */}
         {userLocation && gpsEnabled && (
           <CircleMarker
             center={[userLocation[1], userLocation[0]]}
-            radius={6}
-            pathOptions={{ color: 'white', fillColor: '#00f2fe', fillOpacity: 1, weight: 2 }}
+            radius={8}
+            pane="markerPane"
+            pathOptions={{ color: '#00f2fe', fillColor: '#00f2fe', fillOpacity: 0.9, weight: 3 }}
           />
         )}
       </MapContainer>
